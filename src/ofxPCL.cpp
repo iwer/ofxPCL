@@ -1,7 +1,4 @@
 #include "ofxPCL.h"
-#include <pcl/surface/organized_fast_mesh.h>
-#include <pcl/surface/surfel_smoothing.h>
-#include <pcl/surface/marching_cubes_greedy.h>
 
 namespace ofxPCL{
 	void toOf(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & cloud, ofMesh & mesh, float xfactor, float yfactor, float zfactor){
@@ -139,7 +136,9 @@ namespace ofxPCL{
 		tree->setInputCloud (cloud);
 
 		// Init object (second point type is for the normals, even if unused)
+/* not working in 1.6
 		pcl::MovingLeastSquares<pcl::PointXYZRGB, pcl::Normal> mls;
+
 
 		// Optionally, a pointer to a cloud can be provided, to be set by MLS
 		mls.setOutputNormals (mls_normals);
@@ -158,6 +157,7 @@ namespace ofxPCL{
 		// Concatenate fields for saving
 		//pcl::PointCloud<pcl::PointNormal> mls_cloud;
 		//pcl::concatenateFields (mls_points, *mls_normals, mls_cloud);
+*/
 	}
 
 	void surfelSmooth(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & cloud, pcl::PointCloud<pcl::PointXYZRGB>::Ptr & mls_points, pcl::PointCloud<pcl::Normal>::Ptr & mls_normals){
@@ -225,6 +225,7 @@ namespace ofxPCL{
 		pcl::search::KdTree<pcl::PointXYZINormal>::Ptr tree2 (new pcl::search::KdTree<pcl::PointXYZINormal>);
 		tree2->setInputCloud (cloud_with_normals);
 
+/* not working in 1.6
 		// Initialize objects
 		pcl::MarchingCubesGreedy<pcl::PointXYZINormal> mc;
 
@@ -236,6 +237,7 @@ namespace ofxPCL{
 
 		toOf(cloud_with_normals,mesh,1000,1000,1000);
 		addIndices(mesh,triangles);
+*/
 	}
 
 	pcl::PointCloud<pcl::Normal>::Ptr calculateNormals(pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud, float normal_radius_){
@@ -332,6 +334,9 @@ namespace ofxPCL{
 	pcl::PointCloud<pcl::PointNormal>::Ptr movingLeastSquares(pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud){
 		  pcl::PointCloud<pcl::PointXYZ> mls_points;
 		  pcl::PointCloud<pcl::Normal>::Ptr mls_normals (new pcl::PointCloud<pcl::Normal> ());
+
+/* not working in 1.6
+
 		  pcl::MovingLeastSquares<pcl::PointXYZ, pcl::Normal> mls;
 		  boost::shared_ptr<vector<int> > indices (new vector<int>);
 
@@ -354,13 +359,16 @@ namespace ofxPCL{
 		  pcl::concatenateFields (mls_points, *mls_normals, *mls_cloud);
 
 		  return mls_cloud;
+*/
 	}
 
 	pcl::PolygonMesh::Ptr marchingCubes(pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud, float leafSize){
 		pcl::PointCloud<pcl::Normal>::Ptr normals = calculateNormals(cloud);
-		pcl::PolygonMesh::Ptr pm(new pcl::PolygonMesh);
+		pcl::PolygonMesh::Ptr pm (new pcl::PolygonMesh);
 		pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointXYZINormal>);
 		pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
+
+/* not working in 1.6
 		pcl::MarchingCubesGreedy<pcl::PointXYZINormal> marchingCubes;
 		pcl::search::KdTree<pcl::PointXYZINormal>::Ptr tree2 (new pcl::search::KdTree<pcl::PointXYZINormal>);
 		tree2->setInputCloud (cloud_with_normals);
@@ -371,6 +379,7 @@ namespace ofxPCL{
 		marchingCubes.setInputCloud(cloud_with_normals);
 		marchingCubes.reconstruct(*pm);
 		return pm;
+*/
 	}
 
 	pcl::PolygonMesh::Ptr greedyProjectionTriangulation(pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud){

@@ -1,27 +1,29 @@
 #pragma once
 
 #undef Success
+
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/features/fpfh.h>
 #include <pcl/features/normal_3d.h>
-#include <pcl/surface/gp3.h>
 #include <pcl/filters/passthrough.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/surface/mls.h>
-
-#include <pcl/registration/icp.h>
-#include <pcl/surface/grid_projection.h>
-#include <pcl/surface/marching_cubes.h>
-#include <pcl/surface/marching_cubes_greedy.h>
-
-#include <pcl/keypoints/harris_keypoint3D.h>
-#include <pcl/search/pcl_search.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/features/fpfh.h>
-#include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/registration/icp.h>
+#include <pcl/surface/gp3.h>
+#include <pcl/surface/mls.h>
+#include <pcl/surface/grid_projection.h>
+#include <pcl/surface/marching_cubes.h>
+#include <pcl/surface/organized_fast_mesh.h>
+#include <pcl/surface/surfel_smoothing.h>
+//#include <pcl/surface/marching_cubes_greedy.h>
+#include <pcl/keypoints/harris_keypoint3D.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/search/pcl_search.h>
+
 
 #include "typedefs.h"
 
