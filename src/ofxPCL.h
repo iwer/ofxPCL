@@ -98,7 +98,7 @@ void addIndices(ofMesh & mesh,
 
 
 SurfaceNormalsPtr calculateNormals(PointCloudPtr & cloud,
-                                   float normal_radius_=0.05);
+                                   float normal_radius_=0.02);
 
 SurfaceNormalsPtr calculateNormalsOrdered(PointCloudPtr & cloud,
         pcl::IntegralImageNormalEstimation<PointT, NormalT>::NormalEstimationMethod normalEstimationMethod=pcl::IntegralImageNormalEstimation<PointT, NormalT>::AVERAGE_3D_GRADIENT,
@@ -106,7 +106,7 @@ SurfaceNormalsPtr calculateNormalsOrdered(PointCloudPtr & cloud,
         float normalSmoothingSize=10);
 
 SurfaceNormalsPtr calculateNormalsParallel(PointCloudPtr & cloud,
-        float normal_radius_=0.05);
+        float normal_radius_=0.02);
 
 
 LocalDescriptorsPtr computeLocalFeatures (const PointCloudPtr & cloudIn,
@@ -165,7 +165,7 @@ ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_
         PointNormalsPtr points_with_normals_tgt,
         LocalDescriptorsPtr source_features,
         LocalDescriptorsPtr target_features,
-        double ia_min_sample_distance = 0.5,
-        float ia_max_distance = 0.05,
+        double ia_min_sample_distance = 0.1,
+        float ia_max_distance = 0.5,
         int ia_iterations = 100);
 }

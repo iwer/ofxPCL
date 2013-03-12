@@ -629,7 +629,9 @@ void pair_align(const PointCloudPtr cloud_src,
 
 
 
-
+/*
+ * Returns transformation in pcl coordinates
+ */
 ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_src,
         PointNormalsPtr points_with_normals_tgt,
         LocalDescriptorsPtr source_features,
@@ -638,6 +640,7 @@ ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_
         float ia_max_distance,
         int ia_iterations)
 {
+    cout << "Computing initial alignment" << endl;
     pcl::SampleConsensusInitialAlignment<PointNormalT, PointNormalT, LocalDescriptorT> sac;
     sac.setMinSampleDistance(ia_min_sample_distance);
     sac.setMaxCorrespondenceDistance(ia_max_distance);
@@ -651,6 +654,8 @@ ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_
     sac.align(*pre_aligned_source);
 
     Eigen::Matrix4f initial_T = sac.getFinalTransformation();
+
+    //cout << "Eigen:\n"<< initial_T << endl;
 
     ofMatrix4x4 final_transform;
     memcpy(final_transform.getPtr(), &initial_T, sizeof(float) * 16);
