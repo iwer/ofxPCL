@@ -19,7 +19,6 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/radius_outlier_removal.h>
 
-#include <pcl/registration/icp.h>
 #include <pcl/surface/gp3.h>
 #include <pcl/surface/mls.h>
 #include <pcl/surface/grid_projection.h>
@@ -34,6 +33,9 @@
 #include <pcl/features/fpfh_omp.h>
 
 #include <pcl/registration/ia_ransac.h>
+
+#include <pcl/registration/icp.h>
+#include <pcl/registration/icp_nl.h>
 
 #include "typedefs.h"
 
@@ -167,5 +169,11 @@ ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_
         LocalDescriptorsPtr target_features,
         double ia_min_sample_distance = 0.1,
         float ia_max_distance = 0.5,
-        int ia_iterations = 100);
+        int ia_iterations = 200);
+
+ofMatrix4x4 iterativeClosestPoint(PointNormalsPtr pre_aligned_source,
+                                  PointNormalsPtr target,
+                                  double icp_epsilon = 1e-4,
+                                  float icp_maxdistance = 0.5,
+                                  int icp_iterations = 500);
 }

@@ -160,7 +160,8 @@ void toPCL(const ofMesh & mesh, PointCloudPtr pc)
     }
 }
 
-void transform(PointCloudPtr cloud, ofMatrix4x4 matrix)
+template <typename T>
+void transform(T cloud, ofMatrix4x4 matrix)
 {
     assert(cloud);
 
@@ -623,14 +624,17 @@ void pair_align(const PointCloudPtr cloud_src,
 
     // ############################################################################
 
-    final_transform = sampleConsensusInitialAlignment(points_with_normals_src, points_with_normals_tgt, source_features, target_features);
+    ofMatrix4x4 initial_transform = sampleConsensusInitialAlignment(points_with_normals_src, points_with_normals_tgt, source_features, target_features);
+    // pre align source
+    transform(points_with_normals_src, initial_transform.getInverse());
+    final_transform = iterativeClosestPoint(points_with_normals_src, points_with_normals_tgt);
 
 }
 
 
 
 /*
- * Returns transformation in pcl coordinates
+ * Returns transformation in pcl coordinates TODO: translation * 1000 for of Space
  */
 ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_src,
         PointNormalsPtr points_with_normals_tgt,
@@ -655,11 +659,70 @@ ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_
 
     Eigen::Matrix4f initial_T = sac.getFinalTransformation();
 
-    //cout << "Eigen:\n"<< initial_T << endl;
+    cout << "Initial:\n"<< initial_T << endl;
 
     ofMatrix4x4 final_transform;
     memcpy(final_transform.getPtr(), &initial_T, sizeof(float) * 16);
     return final_transform;
 }
+
+// Define a new point representation for < x, y, z, curvature >
+class MyPointRepresentation: public pcl::PointRepresentation<PointNormalT> {
+    using pcl::PointRepresentation<PointNormalT>::nr_dimensions_;
+public:
+    MyPointRepresentation() {
+        // Define the number of dimensions
+        nr_dimensions_ = 4;
+    }
+
+    // Override the copyToFloatArray method to define our feature vector
+    virtual void copyToFloatArray(const PointNormalT &p, float * out) const {
+        // < x, y, z, curvature >
+        out[0] = p.x;
+        out[1] = p.y;
+        out[2] = p.z;
+        out[3] = p.curvature;
+    }
+};
+
+ofMatrix4x4 iterativeClosestPoint(PointNormalsPtr pre_aligned_source, PointNormalsPtr target, double icp_epsilon, float icp_maxdistance, int icp_iterations){
+    cout << "Computing fine alignment" << endl;
+
+    pcl::IterativeClosestPointNonLinear<PointNormalT, PointNormalT> reg;
+
+	reg.setTransformationEpsilon(icp_epsilon);
+	// Set the maximum distance between two correspondences (src<->tgt) to 10cm
+    // Note: adjust this based on the size of your datasets
+	reg.setMaxCorrespondenceDistance(icp_maxdistance);
+
+    // Instantiate our custom point representation (defined above) ...
+    MyPointRepresentation point_representation;
+    // ... and weight the 'curvature' dimension so that it is balanced against x, y, and z
+    float alpha[4] = { 1.0, 1.0, 1.0, 2.0 };
+    point_representation.setRescaleValues(alpha);
+    // Set the point representation
+    reg.setPointRepresentation(
+            boost::make_shared<const MyPointRepresentation>(
+                    point_representation));
+
+    reg.setInputSource(pre_aligned_source);
+    reg.setInputTarget(target);
+    reg.setMaximumIterations(icp_iterations);
+
+    //
+    // Run the same optimization in a loop and visualize the results
+    Eigen::Matrix4f Ti = Eigen::Matrix4f::Identity();
+    PointNormalsPtr reg_result = pre_aligned_source;
+
+    reg.align(*reg_result);
+    Ti = reg.getFinalTransformation();
+
+    cout << "Fine:\n"<< Ti << endl;
+
+    ofMatrix4x4 final_transform;
+    memcpy(final_transform.getPtr(), &Ti, sizeof(float) * 16);
+    return final_transform;
+}
+
 
 }
