@@ -380,6 +380,22 @@ computeLocalFeatures (const PointNormalsPtr & cloudIn, float feature_radius)
     return features;
 }
 
+LocalDescriptorsPtr
+computeLocalFeaturesParallel (const PointNormalsPtr & cloudIn, float feature_radius)
+{
+    LocalDescriptorsPtr features(new LocalDescriptors);
+    pcl::search::KdTree<PointNormalT>::Ptr search_method_xyz_;
+
+    pcl::FPFHEstimationOMP<PointNormalT, PointNormalT, LocalDescriptorT> fpfh_est;
+    fpfh_est.setInputCloud (cloudIn);
+    fpfh_est.setInputNormals (cloudIn);
+    fpfh_est.setSearchMethod (search_method_xyz_);
+    //fpfh_est.setRadiusSearch (feature_radius);
+    fpfh_est.setKSearch (20);
+    fpfh_est.compute (*features);
+    return features;
+}
+
 void voxelGridFilter(const PointCloudPtr & cloudIn, PointCloud & cloudOut, float leafSize )
 {
     pcl::VoxelGrid<PointT> p;
@@ -601,8 +617,8 @@ void pair_align(const PointCloudPtr cloud_src,
     LocalDescriptorsPtr target_features(
         new LocalDescriptors);
 
-    source_features = computeLocalFeatures(points_with_normals_src);
-    target_features = computeLocalFeatures(points_with_normals_tgt);
+    source_features = computeLocalFeaturesParallel(points_with_normals_src);
+    target_features = computeLocalFeaturesParallel(points_with_normals_tgt);
 
 
     // ############################################################################

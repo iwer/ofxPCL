@@ -115,6 +115,8 @@ LocalDescriptorsPtr computeLocalFeatures (const PointCloudPtr & cloudIn,
 
 LocalDescriptorsPtr computeLocalFeatures (const PointNormalsPtr & cloudIn,
         float feature_radius=.1);
+LocalDescriptorsPtr computeLocalFeaturesParallel (const PointNormalsPtr & cloudIn,
+        float feature_radius=.1);
 
 void voxelGridFilter(const PointCloudPtr & cloudIn,
                      PointCloud & cloudOut,
@@ -157,13 +159,13 @@ void pair_align(const PointCloudPtr cloud_src,
                 const PointCloudPtr cloud_tgt,
                 ofMatrix4x4 &final_transform,
                 bool downsample = true,
-                double voxel_leaf_size = 0.01);
+                double voxel_leaf_size = 0.005);
 
 ofMatrix4x4 sampleConsensusInitialAlignment(PointNormalsPtr points_with_normals_src,
         PointNormalsPtr points_with_normals_tgt,
         LocalDescriptorsPtr source_features,
         LocalDescriptorsPtr target_features,
         double ia_min_sample_distance = 0.5,
-        float ia_max_distance = 0.1,
-        int ia_iterations = 20);
+        float ia_max_distance = 0.05,
+        int ia_iterations = 100);
 }
